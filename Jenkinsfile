@@ -16,7 +16,6 @@ pipeline {
             }
         }
         stage("run test and sonar"){
-            parallel{
                 environment {
                     scannerHome = tool 'SonarQube Scanner 4.0'
                 }
@@ -31,7 +30,6 @@ pipeline {
                 timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
-            }
         }
     }
 }
