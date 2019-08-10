@@ -19,14 +19,15 @@ pipeline {
                 environment {
                     scannerHome = tool 'SonarQube Scanner 4.0'
                 }
-                steps("Sonar scan"){
+                steps("Sonar scan and test"){
                     withSonarQubeEnv('sonarqube') {
                         sh "${scannerHome}/bin/sonar-scanner"
+                        sh "mvn test"
                     }
                 }
-                steps("run test") {
+                /*steps("run test") {
                     sh "mvn test"
-                }
+                }*/
                 timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
