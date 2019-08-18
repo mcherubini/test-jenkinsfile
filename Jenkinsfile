@@ -38,9 +38,9 @@ pipeline {
             options{
                 timeout(time: 1, unit: 'HOURS')  // Just in case something goes wrong, pipeline will be killed after a timeout
             }
-                    /*steps("run test") {
+                    steps("run test") {
                         sh "mvn test"
-                    }*/
+                    }
         }
         stage("Sonar Quality Gate"){
             steps{
