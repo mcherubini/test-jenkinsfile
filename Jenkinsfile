@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent{
+        label 'slave-ssh'
+    }
     environment{
         BITBUCKET_MICHELE_CREDENTIALS = credentials('michele-bitbucket-credentials')
         PROJECT_NAME = 'api-java-spring'
@@ -31,16 +33,15 @@ pipeline {
                         sh "${scannerHome}/bin/sonar-scanner -X -Dsonar.projectName='Demo project' -Dsonar.projectVersion=1.0" +
                         " -Dsonar.projectKey=com.example:demo -Dsonar.sources=src/main" +
                         " -Dsonar.tests=src/test -Dsonar.java.binaries=target/classes"
-                    } 
+                        withMaven(maven: 'Maven 3.6.1'){
                             //sh "mvn test"
+                        }
+                    }
                 }
             }
             options{
                 timeout(time: 1, unit: 'HOURS')  // Just in case something goes wrong, pipeline will be killed after a timeout
             }
-                    steps("run test") {
-                        sh "mvn test"
-                    }
         }
         stage("Sonar Quality Gate"){
             steps{
