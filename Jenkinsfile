@@ -1,6 +1,62 @@
 pipeline {
     agent{
-        label 'slave-ssh'
+        kubernetes{
+            defaultContainer 'jenkins-slave'
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+   name: raccon-royale-pod
+   labels: 
+     app-racoon: racoon-v1
+spec:
+    volumes:
+     - name: maven-m2-folder-volume
+       hostPath:
+       path: /host_mnt/c/Users/michele/.m2
+     - name: sonarqube-conf
+       hostPath:
+        path:  //e/docker-containers/sonarqube/sonar.properties
+        type: File
+     - name: sonarqube-data
+       hostPath:
+        path: //e/docker-containers/sonarqube/database01/data
+        type: Directory
+     - name: mariadb-conf
+       hostPath:
+        path:  //e/docker-containers/mariadb/my.cnf
+        type: File
+    containers:
+    - name: mariadb-database
+      image: mariadb:latest
+      env:
+      - name: MYSQL_ROOT_PASSWORD
+        value: "ViHasCome2"
+      ports:
+      - containerPort: 3306
+      volumeMounts:
+      - name: mariadb-conf
+        mountPath: /etc/mysql/my.cnf
+    - name: sonarqube-container
+      image: sonarqube:latest
+      ports:
+      - containerPort: 9000
+      volumeMounts:
+      - name: sonarqube-conf
+        mountPath: /opt/sonarqube/conf/sonar.properties
+      - name: sonarqube-data
+        mountPath: /opt/sonarqube/data
+    - name: jenkins-slave
+      image: jenkinsci/jnlp-slave
+      workingDir: /home/jenkins
+      volumeMounts:
+      - name: maven-m2-folder-volume
+        mountPath: /root/.m2
+        command:
+        - cat:
+          tty: true
+"""
+        }
     }
     environment{
         BITBUCKET_MICHELE_CREDENTIALS = credentials('michele-bitbucket-credentials')
